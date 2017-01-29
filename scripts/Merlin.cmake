@@ -1,5 +1,11 @@
 include(${CMAKE_CURRENT_LIST_DIR}/local.cmake OPTIONAL)
 
+if(NOT DEFINED BUILD_ROOT)
+	set(BUILD_ROOT "/var/tmp/merlin-cdash")
+endif()
+
+site_name(CTEST_SITE)
+
 set(PLATFORM "${CMAKE_SYSTEM_NAME}")
 
 if (${PLATFORM} MATCHES "Linux")
@@ -21,6 +27,7 @@ endif()
 
 set(CTEST_BUILD_NAME "${PLATFORM} ${CMAKE_HOST_SYSTEM_PROCESSOR} ${CXX_VERSION} (${CTEST_BUILD_CONFIGURATION}) ${MPI_VERSION}")
 
+set(CTEST_BUILD_OPTIONS "-DBUILD_TESTING=ON -DCOVERAGE=ON")
 
 if(NOT DEFINED N)
 	#https://cmake.org/cmake/help/latest/module/ProcessorCount.html
@@ -32,6 +39,24 @@ if(NOT N EQUAL 0)
 	MESSAGE(STATUS "Found ${N} processors")
 	set(CTEST_BUILD_FLAGS -j${N})
 	set(ctest_test_args ${ctest_test_args} PARALLEL_LEVEL ${N})
+endif()
+
+if(${CTEST_BUILD_CONFIGURATION} MATCHES "Debug")
+	set(WITH_MEMCHECK TRUE)
+else()
+	set(WITH_MEMCHECK FALSE)
+endif()
+
+if(NOT DEFINED WITH_COVERAGE)
+	set(WITH_COVERAGE TRUE)
+endif()
+
+if(NOT DEFINED CTEST_CMAKE_GENERATOR)
+	set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+endif()
+
+if(NOT DEFINED CMAKE_CXX_COMPILER)
+	set(CMAKE_CXX_COMPILER "g++")
 endif()
 
 find_program(CTEST_GIT_COMMAND NAMES git)
