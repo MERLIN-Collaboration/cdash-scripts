@@ -1,5 +1,9 @@
 include(${CMAKE_CURRENT_LIST_DIR}/local.cmake OPTIONAL)
 
+if(NOT DEFINED BUILD_ROOT)
+	set(BUILD_ROOT "/var/tmp/merlin-cdash")
+endif()
+
 set(PLATFORM "${CMAKE_SYSTEM_NAME}")
 
 if (${PLATFORM} MATCHES "Linux")
