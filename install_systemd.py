@@ -14,7 +14,7 @@ Description={mode}
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/ctest -V -S {script_path}
+ExecStart={wrapper} /usr/bin/ctest -V -S {script_path}
 """
 
 timer_temp = """[Unit]
@@ -67,11 +67,14 @@ for filename in os.listdir(os.path.join(current_dir,"scripts")):
 	if "Continuous" in mode: oncal = continuous_timespec
 	else: oncal = nightly_timespec
 
+        wrapper = ""
+        if "MPI" in mode: wrapper = os.path.join(current_dir, "scripts", "mpi_wrap.sh")
+
 	with open(os.path.join(systemd_dir, mode+".timer"), "w") as fh:
 		fh.write(timer_temp.format(mode=mode, oncal=oncal))
 
 	with open(os.path.join(systemd_dir, mode+".service"), "w") as fh:
-		fh.write(service_temp.format(mode=mode, script_path=script_path))
+		fh.write(service_temp.format(mode=mode, script_path=script_path, wrapper=wrapper))
 
 	proc = subprocess.Popen(["systemctl", "--user","enable", mode+".timer"])
 	ret = proc.wait()
