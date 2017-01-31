@@ -7,7 +7,7 @@ import tempfile
 continuous_timespec = "0 * * * *"
 nightly_timespec = "30 2 * * *"
 
-cron_line = "{timespec} /usr/bin/ctest -S {script_path}"
+cron_line = "{timespec} {wrapper} /usr/bin/ctest -S {script_path}"
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -30,8 +30,11 @@ with tempfile.NamedTemporaryFile() as tmp_crontab:
 		if "Continuous" in mode: timespec = continuous_timespec
 		else: timespec = nightly_timespec
 
+                wrapper = ""
+                if "MPI" in mode: wrapper = os.path.join(current_dir, "scripts", "mpi_wrap.sh")
 
-		tmp_crontab.write(cron_line.format(timespec=timespec, script_path=script_path)+"\n")
+
+		tmp_crontab.write(cron_line.format(timespec=timespec, script_path=script_path, wrapper=wrapper)+"\n")
 
 	tmp_crontab.flush()
 	proc = subprocess.Popen(["crontab", tmp_crontab.name])
