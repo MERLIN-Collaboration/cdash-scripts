@@ -3,6 +3,6 @@
 #set(BUILD_ROOT "/home/merlintest/merlin")
 
 # increase test timeout
-#set(CTEST_BUILD_OPTIONS "${CTEST_BUILD_OPTIONS} -DTEST_TIMEOUT=14400"
+#set(MERLIN_TEST_TIMEOUT 14400)
 
 #set(N 1) # uncomment to overide automatic
