@@ -123,21 +123,24 @@ else()
 
 #generates the configuration
 ctest_configure()
+ctest_submit()
 
 #builds MERLIN
 ctest_build()
+ctest_submit()
 
 #runs the tests
 ctest_test(PARALLEL_LEVEL ${N})
+ctest_submit()
 
 if (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
-  ctest_coverage()
+	ctest_coverage()
+	ctest_submit()
 endif (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
 if (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND)
-  ctest_memcheck()
+	ctest_memcheck()
+	ctest_submit()
 endif (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND)
 
-#submits to the dashboard
-ctest_submit()
 endif()
 #######################################################################
