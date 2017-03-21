@@ -33,7 +33,7 @@ set(CXX_VERSION "${CMAKE_CXX_COMPILER} ${CXX_VERSION}")
 
 set(CTEST_BUILD_NAME "${PLATFORM} ${CMAKE_HOST_SYSTEM_PROCESSOR} ${CXX_VERSION} (${CTEST_BUILD_CONFIGURATION}) ${MPI_VERSION} ${BUILD_IDENTIFIER}")
 
-set(CTEST_BUILD_OPTIONS "-DBUILD_TESTING=ON -DCOVERAGE=ON")
+set(CTEST_BUILD_OPTIONS "${CTEST_BUILD_OPTIONS} -DBUILD_TESTING=ON -DCOVERAGE=ON")
 
 if(NOT DEFINED MERLIN_GIT_ADDR)
 	set(MERLIN_GIT_ADDR "https://github.com/MERLIN-Collaboration/MERLIN.git")
@@ -123,21 +123,24 @@ else()
 
 #generates the configuration
 ctest_configure()
+ctest_submit()
 
 #builds MERLIN
 ctest_build()
+ctest_submit()
 
 #runs the tests
 ctest_test(PARALLEL_LEVEL ${N})
+ctest_submit()
 
 if (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
-  ctest_coverage()
+	ctest_coverage()
+	ctest_submit()
 endif (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
 if (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND)
-  ctest_memcheck()
+	ctest_memcheck()
+	ctest_submit()
 endif (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND)
 
-#submits to the dashboard
-ctest_submit()
 endif()
 #######################################################################
