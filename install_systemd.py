@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import os
+import sys
 import errno
 import subprocess
 
@@ -55,6 +56,38 @@ elif not outs.strip() == "Linger=yes" or ret != 0:
 	exit(2)
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Check for existing timers
+existing_timers = []
+existing_units = []
+proc = subprocess.Popen(["systemctl", "--user", "show", "Merlin*", "--type", "timer", "--property", "Names,Unit"],
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+outs, errs = proc.communicate()
+ret = proc.wait()
+for line in outs.split("\n"):
+	if line.startswith("Names="):
+		existing_timers.append(line.partition("=")[2])
+	elif line.startswith("Unit="):
+		existing_units.append(line.partition("=")[2])
+
+# Remove old times and units
+for unit, timer in zip(existing_units, existing_timers):
+	proc = subprocess.Popen(["systemctl", "--user","disable", timer])
+	ret = proc.wait()
+	if ret != 0:
+		print("Could not disable systemd timer for %s"%mode)
+		exit(5)
+	proc = subprocess.Popen(["systemctl", "--user","stop", timer])
+	ret = proc.wait()
+	if ret != 0:
+		print("Could not stop systemd timer for %s"%mode)
+		exit(6)
+
+	os.remove(os.path.join(systemd_dir, timer))
+	os.remove(os.path.join(systemd_dir, unit))
+
+if "uninstall" in sys.argv[1:]:
+	exit()
 
 for filename in os.listdir(os.path.join(current_dir,"scripts")):
 	if not filename.endswith("CDash.cmake"): continue
