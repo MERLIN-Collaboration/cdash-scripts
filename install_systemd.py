@@ -15,7 +15,16 @@ Description={mode}
 
 [Service]
 Type=oneshot
+Nice=10
+IOSchedulingPriority=6
+ProtectHome=read-only
+ProtectSystem=full
+SyslogIdentifier=Ctest_{mode}
 ExecStart={wrapper} /usr/bin/ctest -V -S {script_path}
+
+# On systemd newer than 232, enable these. needs testing
+#ProtectSystem=strict
+#ReadWritePaths=/var/tmp/merlin-cdash
 """
 
 timer_temp = """[Unit]
