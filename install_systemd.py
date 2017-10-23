@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import os
+import pwd
 import sys
 import errno
 import subprocess
@@ -46,7 +47,8 @@ except OSError as exc:
 	else: raise
 
 # Check user is allowed to set timers while logged out
-username = os.getlogin()
+#username = os.getlogin()
+username = pwd.getpwuid(os.getuid())[0]
 proc = subprocess.Popen(["loginctl", "show-user", "-p", "Linger", username],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 outs, errs = proc.communicate()
