@@ -15,7 +15,7 @@ service_temp = """[Unit]
 Description={mode}
 
 [Service]
-Type=oneshot
+Type=simple
 Nice=10
 IOSchedulingPriority=6
 ProtectHome=read-only
