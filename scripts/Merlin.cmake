@@ -121,25 +121,26 @@ elseif(${UPDATED_RUN} MATCHES -1)
 else()
 	MESSAGE(STATUS "MERLIN is updated on github with ${UPDATED_RUN} new files.")
 
+ctest_submit(PARTS Update RETRY_COUNT 5 RETRY_DELAY 60)
 #generates the configuration
 ctest_configure()
-ctest_submit()
+ctest_submit(PARTS Configure RETRY_COUNT 5 RETRY_DELAY 60)
 
 #builds MERLIN
 ctest_build()
-ctest_submit()
+ctest_submit(PARTS Build RETRY_COUNT 5 RETRY_DELAY 60)
 
 #runs the tests
 ctest_test(PARALLEL_LEVEL ${N})
-ctest_submit()
+ctest_submit(PARTS Test RETRY_COUNT 5 RETRY_DELAY 60)
 
 if (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
 	ctest_coverage()
-	ctest_submit()
+	ctest_submit(PARTS Coverage RETRY_COUNT 5 RETRY_DELAY 60)
 endif (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
 if (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND)
 	ctest_memcheck()
-	ctest_submit()
+	ctest_submit(PARTS MemCheck RETRY_COUNT 5 RETRY_DELAY 60)
 endif (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND)
 
 endif()
