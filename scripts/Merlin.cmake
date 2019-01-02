@@ -123,23 +123,22 @@ else()
 
 #generates the configuration
 ctest_configure()
-ctest_submit()
 
 #builds MERLIN
 ctest_build()
-ctest_submit()
+ctest_submit(RETRY_COUNT 5 RETRY_DELAY 60)
 
 #runs the tests
 ctest_test(PARALLEL_LEVEL ${N})
-ctest_submit()
+ctest_submit(PARTS Test RETRY_COUNT 5 RETRY_DELAY 60)
 
 if (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
 	ctest_coverage()
-	ctest_submit()
+	ctest_submit(PARTS Coverage RETRY_COUNT 5 RETRY_DELAY 60)
 endif (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
 if (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND)
 	ctest_memcheck()
-	ctest_submit()
+	ctest_submit(PARTS MemCheck RETRY_COUNT 5 RETRY_DELAY 60)
 endif (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND)
 
 endif()

@@ -9,10 +9,10 @@ import subprocess
 systemd_dir = os.path.expanduser("~/.config/systemd/user")
 
 continuous_timespec = "hourly"
-nightly_timespec = "*-*-* 02:30:00"
+nightly_timespec = "*-*-* 01:30:00"
 
 service_temp = """[Unit]
-Description={mode}
+Description=Merlin ctests {mode}
 
 [Service]
 Type=simple
@@ -20,8 +20,8 @@ Nice=10
 IOSchedulingPriority=6
 ProtectHome=read-only
 ProtectSystem=full
-SyslogIdentifier=Ctest_{mode}
-ExecStart={wrapper} /usr/bin/ctest -V -S {script_path}
+SyslogIdentifier=MerlinCDash_{mode}
+ExecStart={current_dir}/scripts/run_tests.sh {mode}
 
 # On systemd newer than 232, enable these. needs testing
 #ProtectSystem=strict
@@ -100,32 +100,25 @@ for unit, timer in zip(existing_units, existing_timers):
 if "uninstall" in sys.argv[1:]:
 	exit()
 
-for filename in os.listdir(os.path.join(current_dir,"scripts")):
-	if not filename.endswith("CDash.cmake"): continue
-
-	mode = filename[:-11]
-	script_path = os.path.join(current_dir,"scripts", filename)
-
+for mode in ["nightly", "continuous"]:
 	print(mode)
 
-	if "Continuous" in mode: oncal = continuous_timespec
+	if "continuous" in mode: oncal = continuous_timespec
 	else: oncal = nightly_timespec
 
-        wrapper = ""
-        if "MPI" in mode: wrapper = os.path.join(current_dir, "scripts", "mpi_wrap.sh")
-
-	with open(os.path.join(systemd_dir, mode+".timer"), "w") as fh:
+	with open(os.path.join(systemd_dir, "MerlinCDash_"+mode+".timer"), "w") as fh:
 		fh.write(timer_temp.format(mode=mode, oncal=oncal))
 
-	with open(os.path.join(systemd_dir, mode+".service"), "w") as fh:
-		fh.write(service_temp.format(mode=mode, script_path=script_path, wrapper=wrapper))
+	with open(os.path.join(systemd_dir, "MerlinCDash_"+mode+".service"), "w") as fh:
+		fh.write(service_temp.format(mode=mode, current_dir=current_dir))
 
-	proc = subprocess.Popen(["systemctl", "--user","enable", mode+".timer"])
+        #FIXME on systemd 220 and newer we could used "--now" with "eable" and drop calling "start"
+	proc = subprocess.Popen(["systemctl", "--user","enable", "MerlinCDash_"+mode+".timer"])
 	ret = proc.wait()
 	if ret != 0:
 		print("Could not enable systemd timer for %s"%mode)
 		exit(3)
-	proc = subprocess.Popen(["systemctl", "--user","start", mode+".timer"])
+	proc = subprocess.Popen(["systemctl", "--user","start", "MerlinCDash_"+mode+".timer"])
 	ret = proc.wait()
 	if ret != 0:
 		print("Could not start systemd timer for %s"%mode)

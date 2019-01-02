@@ -7,7 +7,7 @@ import tempfile
 continuous_timespec = "0 * * * *"
 nightly_timespec = "30 2 * * *"
 
-cron_line = "{timespec} {wrapper} /usr/bin/ctest -S {script_path}"
+cron_line = "{timespec} {current_dir}/scripts/run_tests.sh {mode}"
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,22 +19,13 @@ with tempfile.NamedTemporaryFile() as tmp_crontab:
 	ret = proc.wait()
 	tmp_crontab.write(outs)
 
-	for filename in os.listdir(os.path.join(current_dir,"scripts")):
-		if not filename.endswith("CDash.cmake"): continue
-
-		mode = filename[:-11]
-		script_path = os.path.join(current_dir,"scripts", filename)
-
+        for mode in ["nightly", "continuous"]:
 		print(mode)
 
-		if "Continuous" in mode: timespec = continuous_timespec
+		if "continuous" in mode: timespec = continuous_timespec
 		else: timespec = nightly_timespec
 
-                wrapper = ""
-                if "MPI" in mode: wrapper = os.path.join(current_dir, "scripts", "mpi_wrap.sh")
-
-
-		tmp_crontab.write(cron_line.format(timespec=timespec, script_path=script_path, wrapper=wrapper)+"\n")
+		tmp_crontab.write(cron_line.format(timespec=timespec, mode=mode, current_dir=current_dir)+"\n")
 
 	tmp_crontab.flush()
 	proc = subprocess.Popen(["crontab", tmp_crontab.name])
