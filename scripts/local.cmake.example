@@ -6,3 +6,8 @@
 #set(MERLIN_TEST_TIMEOUT 14400)
 
 #set(N 1) # uncomment to overide automatic
+
+#set(WITH_COVERAGE TRUE) # requires gcov
+#set(WITH_MEMCHECK TRUE) # requires valgrind
+
+
