@@ -53,6 +53,8 @@ proc = subprocess.Popen(["loginctl", "show-user", "-p", "Linger", username],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 outs, errs = proc.communicate()
 ret = proc.wait()
+if sys.version_info[0] > 2:
+	outs = outs.decode("UTF-8")
 
 if outs.strip() == "Linger=no":
 	print("Error: User %s is not allowed to create systemd timers"%username)
@@ -75,6 +77,9 @@ proc = subprocess.Popen(["systemctl", "--user", "show", "Merlin*", "--type", "ti
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 outs, errs = proc.communicate()
 ret = proc.wait()
+if sys.version_info[0] > 2:
+	outs = outs.decode("UTF-8")
+
 for line in outs.split("\n"):
 	if line.startswith("Names="):
 		existing_timers.append(line.partition("=")[2])
