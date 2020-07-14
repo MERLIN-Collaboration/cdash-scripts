@@ -132,15 +132,15 @@ ctest_submit(RETRY_COUNT 5 RETRY_DELAY 60)
 
 #runs the tests
 ctest_test(PARALLEL_LEVEL ${N})
-ctest_submit(PARTS Test RETRY_COUNT 5 RETRY_DELAY 60)
+ctest_submit(RETRY_COUNT 5 RETRY_DELAY 60)
 
 if (WITH_COVERAGE AND CTEST_COVERAGE_COMMAND)
 	ctest_coverage()
-	ctest_submit(PARTS Coverage RETRY_COUNT 5 RETRY_DELAY 60)
+	ctest_submit(RETRY_COUNT 5 RETRY_DELAY 60)
 endif ()
 if (WITH_MEMCHECK AND CTEST_MEMORYCHECK_COMMAND AND ${CTEST_BUILD_CONFIGURATION} MATCHES "Debug")
 	ctest_memcheck()
-	ctest_submit(PARTS MemCheck RETRY_COUNT 5 RETRY_DELAY 60)
+	ctest_submit(RETRY_COUNT 5 RETRY_DELAY 60)
 endif ()
 endif ()
 #######################################################################
